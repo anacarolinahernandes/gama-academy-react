@@ -14,6 +14,7 @@ import './assets/css/novoTweet.css'
 
 
 import App from './App';
+import LoginPage from './pages/LoginPage'
 import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(<App />, document.getElementById('root'));
