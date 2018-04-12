@@ -1,23 +1,28 @@
 import React, { Component, Fragment } from 'react';
-import Cabecalho from './components/Cabecalho'
-import NavMenu from './components/NavMenu'
-import Dashboard from './components/Dashboard'
-import Widget from './components/Widget'
-import TrendsArea from './components/TrendsArea'
-import Tweet from './components/Tweet'
+import Cabecalho from '../../components/Cabecalho'
+import NavMenu from '../../components/NavMenu'
+import Dashboard from '../../components/Dashboard'
+import Widget from '../../components/Widget'
+import TrendsArea from '../../components/TrendsArea'
+import Tweet from '../../components/Tweet'
 
 
 
-export default class App extends Component {
+export default class Home extends Component {
 
-    constructor() {
+    constructor(props) {
         super()
         this.state = {
             novoTweet: '',
             tweets: []
         }
+        // Código triste da vida! :(
 
         this.adicionaTweet = this.adicionaTweet.bind(this)
+        
+        if(!localStorage.getItem('TOKEN')) {
+            props.history.push('/login')
+        }
     }
 
     adicionaTweet(event) {
@@ -73,6 +78,9 @@ export default class App extends Component {
                     <Dashboard posicao="centro">
                         <Widget>
                             <div className="tweetsArea">
+                                        { this.state.tweets.length === 0
+                                            ? 'Poxa, não tem nada aqui! :(' : ''
+                                        }
                                         { this.state.tweets.map(
                                             (tweetInfo, index) =>
                                                 <Tweet 
