@@ -15,8 +15,8 @@ function estaAutenticado() {
 
 class PrivateRoute extends Component {
     render() {
-        const path = this.props.path
-        const component = this.props.component
+        /* const path = this.props.path
+        const component = this.props.component */
         if(estaAutenticado()) {
             return (
                 <Route { ...this.props } />
@@ -33,7 +33,7 @@ class PrivateRoute extends Component {
 const Routes = () => {
     return(
         <Switch>
-                <PrivateRoute path="/" exact component={Home} exact />
+                <PrivateRoute path="/" component={Home} exact />
                 <Route path="/login" component={LoginPage} />
                 <Route path="*" component={() => (<div>Página 404</div>)} />
         </Switch>

@@ -16,14 +16,20 @@ export default class Home extends Component {
             novoTweet: '',
             tweets: []
         }
-        // Código triste da vida! :(
-
-        this.adicionaTweet = this.adicionaTweet.bind(this)
         
-        if(!localStorage.getItem('TOKEN')) {
-            props.history.push('/login')
-        }
+        this.adicionaTweet = this.adicionaTweet.bind(this)
     }
+    
+    componentDidMount() {
+        fetch(`http://localhost:3001/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`)
+            .then((respostaDoServer) => respostaDoServer.json())
+            .then((tweetsDoServidor) => {
+                this.setState({
+                    tweets: tweetsDoServidor
+                })
+            })
+    }
+
 
     adicionaTweet(event) {
         event.preventDefault()
@@ -31,10 +37,20 @@ export default class Home extends Component {
         const tweetsAntigos = this.state.tweets
 
         if (novoTweet) {
-            this.setState({
-                tweets: [novoTweet, ...tweetsAntigos],
-                novoTweet: ''
-            })
+            fetch(`http://localhost:3001/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ conteudo: novoTweet })
+                })
+
+                .then((respostaDoServer => respostaDoServer.json()))
+                .then((novoTweetRegistradoNoServer) => {
+                    this.setState({
+                        tweets: [novoTweetRegistradoNoServer, ...tweetsAntigos],
+                        novoTweet: ''
+                    })
+
+                })
         }
     }
 
@@ -78,16 +94,17 @@ export default class Home extends Component {
                     <Dashboard posicao="centro">
                         <Widget>
                             <div className="tweetsArea">
-                                        { this.state.tweets.length === 0
-                                            ? 'Poxa, não tem nada aqui! :(' : ''
-                                        }
-                                        { this.state.tweets.map(
-                                            (tweetInfo, index) =>
-                                                <Tweet 
-                                                    key={tweetInfo + index}
-                                                    texto={tweetInfo} />
-                                            )
-                                        }                                
+                                {this.state.tweets.length === 0
+                                    ? 'Poxa, não tem nada aqui! :(' : ''
+                                }
+                                {this.state.tweets.map(
+                                    (tweetInfo, index) =>
+                                        <Tweet
+                                            key={tweetInfo + index}
+                                            texto={tweetInfo.conteudo}
+                                            tweetInfo={tweetInfo} />
+                                )
+                                }
                             </div>
                         </Widget>
                     </Dashboard>
