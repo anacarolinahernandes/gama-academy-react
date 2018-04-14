@@ -6,8 +6,6 @@ import Widget from '../../components/Widget'
 import TrendsArea from '../../components/TrendsArea'
 import Tweet from '../../components/Tweet'
 
-
-
 export default class Home extends Component {
 
     constructor(props) {
@@ -16,10 +14,10 @@ export default class Home extends Component {
             novoTweet: '',
             tweets: []
         }
-        
+
         this.adicionaTweet = this.adicionaTweet.bind(this)
     }
-    
+
     componentDidMount() {
         fetch(`http://localhost:3001/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`)
             .then((respostaDoServer) => respostaDoServer.json())
@@ -54,11 +52,38 @@ export default class Home extends Component {
         }
     }
 
+    removeTweet = (idDoTweet) => {
+        // Saber o ID do Tweet
+        fetch(`http://localhost:3001/tweets/${idDoTweet}?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`, {
+            method: 'DELETE'
+        })
+
+            .then((respostaDoServer) => respostaDoServer.json())
+            .then((respostaPronta) => {
+                const tweetsAtualizados = this.state.tweets.filter((tweetAtual) => tweetAtual._id !== idDoTweet)
+                this.setState({
+                    tweets: tweetsAtualizados
+                })
+            })
+    }
+
+    abreModalParaTweet = (idDoTweetQueVaiNoModal) => {
+        console.log('idDoTweetQueVaiNoModal', idDoTweetQueVaiNoModal)
+        // Fazer alguma operação no array de tweets
+        const tweetAtivo = this.state
+        .tweets
+        .find((tweetAtual) => tweetAtual._id === idDoTweetQueVaiNoModal)
+        console.log(tweetAtivo)
+        this.setState({
+            tweetAtivo: tweetAtivo
+        })
+    }
+
     render() {
         return (
             <Fragment>
                 <Cabecalho>
-                    <NavMenu usuario="@annewithlasers" />
+                    <NavMenu usuario="@nomedousuario" />
                 </Cabecalho>
                 <div className="container">
                     <Dashboard>
@@ -95,15 +120,17 @@ export default class Home extends Component {
                         <Widget>
                             <div className="tweetsArea">
                                 {this.state.tweets.length === 0
-                                    ? 'Poxa, não tem nada aqui! :(' : ''
+                                    ? 'O que você está pensando?' : ''
                                 }
-                                {this.state.tweets.map(
-                                    (tweetInfo, index) =>
-                                        <Tweet
-                                            key={tweetInfo + index}
-                                            texto={tweetInfo.conteudo}
-                                            tweetInfo={tweetInfo} />
-                                )
+                                {
+                                    Boolean(this.state.tweets.length) && this.state.tweets.map(
+                                        (tweetInfo, index) =>
+                                            <Tweet
+                                                key={tweetInfo._id}
+                                                removeHandler={(event) => this.removeTweet(tweetInfo._id)}
+                                                texto={tweetInfo.conteudo}
+                                                tweetInfo={tweetInfo} />
+                                    )
                                 }
                             </div>
                         </Widget>
