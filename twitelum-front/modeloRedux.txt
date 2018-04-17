@@ -1,0 +1,28 @@
+// github.com/omariosouto/react7666
+// twitter.com/dan_abramov
+
+const createStore = (tweetsReducer) => {
+    let state;
+    const subscribers = []
+}
+
+ const dispatch = (action) => {
+     // action = { type: 'CARREGA_TWEETS', tweets: tweetsDoServidor }
+     state = tweetsReducer(state, action)
+     // state = [{}, {}, {}]
+     subscribers.forEach( (funcao) => funcao() )
+ }
+
+ const subscribe = (funcao) = > {
+     subscribers.push(funcao)
+ }
+
+ dispatch({})
+
+ return {
+     getState: () => {
+         return state
+     },
+     dispatch,
+     subscribe
+ }

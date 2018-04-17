@@ -5,26 +5,41 @@ import Dashboard from '../../components/Dashboard'
 import Widget from '../../components/Widget'
 import TrendsArea from '../../components/TrendsArea'
 import Tweet from '../../components/Tweet'
+import Modal from '../../components/Modal'
+import PropTypes from 'prop-types'
 
 export default class Home extends Component {
+
+    static contextTypes = {
+        store: PropTypes.object.isRequired
+    }
 
     constructor(props) {
         super()
         this.state = {
             novoTweet: '',
-            tweets: []
+            tweets: [],
+            tweetAtivo: {
+                usuario: {}
+            }
         }
 
         this.adicionaTweet = this.adicionaTweet.bind(this)
+    }
+
+    componentWillMount() {
+        this.context.store.subscribe(() => {
+            this.setState({
+                tweets: this.context.store.getState()
+            })
+        })
     }
 
     componentDidMount() {
         fetch(`http://localhost:3001/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`)
             .then((respostaDoServer) => respostaDoServer.json())
             .then((tweetsDoServidor) => {
-                this.setState({
-                    tweets: tweetsDoServidor
-                })
+                this.context.store.dispatch({type: 'CARREGA_TWEETS', tweets: tweetsDoServidor})
             })
     }
 
@@ -62,28 +77,36 @@ export default class Home extends Component {
             .then((respostaPronta) => {
                 const tweetsAtualizados = this.state.tweets.filter((tweetAtual) => tweetAtual._id !== idDoTweet)
                 this.setState({
-                    tweets: tweetsAtualizados
+                    tweets: tweetsAtualizados,
+                    tweetAtivo: {}
                 })
             })
     }
 
-    abreModalParaTweet = (idDoTweetQueVaiNoModal) => {
-        console.log('idDoTweetQueVaiNoModal', idDoTweetQueVaiNoModal)
-        // Fazer alguma operação no array de tweets
-        const tweetAtivo = this.state
-        .tweets
-        .find((tweetAtual) => tweetAtual._id === idDoTweetQueVaiNoModal)
-        console.log(tweetAtivo)
-        this.setState({
-            tweetAtivo: tweetAtivo
-        })
+    abreModalParaTweet = (idDoTweetQueVaiNoModal, event) => {
+        const ignoraModal = event.target.closest('.ignoraModal')
+        if (!ignoraModal) {
+            const tweetAtivo = this.state.tweets.find((tweetAtual) => tweetAtual._id === idDoTweetQueVaiNoModal)
+            this.setState({
+                tweetAtivo: tweetAtivo
+            })
+        }
+    }
+
+    fechaModal = (event) => {
+        const isModal = event.target.classList.contains('modal')
+        if (isModal) {
+            this.setState({
+                tweetAtivo: {}
+            })
+        }
     }
 
     render() {
         return (
             <Fragment>
                 <Cabecalho>
-                    <NavMenu usuario="@nomedousuario" />
+                    <NavMenu usuario={`@${localStorage.getItem('usuario')}`} />
                 </Cabecalho>
                 <div className="container">
                     <Dashboard>
@@ -129,6 +152,7 @@ export default class Home extends Component {
                                                 key={tweetInfo._id}
                                                 removeHandler={(event) => this.removeTweet(tweetInfo._id)}
                                                 texto={tweetInfo.conteudo}
+                                                handleModal={(event) => this.abreModalParaTweet(tweetInfo._id, event)}
                                                 tweetInfo={tweetInfo} />
                                     )
                                 }
@@ -136,6 +160,17 @@ export default class Home extends Component {
                         </Widget>
                     </Dashboard>
                 </div>
+
+                {
+                    <Modal isAberto={this.state.tweetAtivo._id} fechaModal={this.fechaModal}>
+                        <Widget>
+                            <Tweet
+                                removeHandler={() => this.removeTweet(this.state.tweetAtivo._id)}
+                                texto={this.state.tweetAtivo.conteudo || ''}
+                                tweetInfo={this.state.tweetAtivo || { _id: '' }} />
+                        </Widget>
+                    </Modal>
+                }
             </Fragment>
         );
     }

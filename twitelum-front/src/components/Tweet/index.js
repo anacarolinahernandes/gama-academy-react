@@ -28,14 +28,14 @@ export default class Tweet extends Component {
 
     render() {
         return (
-            <article className="tweet">
-                <div className="tweet__cabecalho">
+            <article className="tweet" onClick={this.props.handleModal}>
+                <div className="tweet__cabecalho ignoraModal">
                     <img className="tweet__fotoUsuario" src={this.props.tweetInfo.usuario.foto} alt="" />
                     <span className="tweet__nomeUsuario">{this.props.tweetInfo.usuario.nome}</span>
                     <a href=""><span className="tweet__userName">@{this.props.tweetInfo.usuario.login}</span></a>
                 </div>
                 <p className="tweet__conteudo">{this.props.texto}</p>
-                <footer className="tweet__footer">
+                <footer className="tweet__footer ignoraModal">
                     <button className="btn btn--clean" onClick={(event) => this.likeHandler(this.props.tweetInfo._id)}>
                         <svg className={`icon icon--small iconHeart 
                                             ${ this.state.likeado ? 'iconHeart--active' : ''} `} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 47.5 47.5">
@@ -67,14 +67,14 @@ Tweet.PropTypes = {
     removeHandler: PropTypes.func.isRequired,
     texto: PropTypes.string.isRequired,
     tweetInfo: PropTypes.shape({
-        _id: PropTypes.string.isRequired,
+        _id: PropTypes.string,
         likeado: PropTypes.bool,
-        totalLikes: PropTypes.number.isRequired,
+        totalLikes: PropTypes.number,
         removivel: PropTypes.bool,
         usuario: PropTypes.shape({
-            foto: PropTypes.string.isRequired,
-            nome: PropTypes.string.isRequired,
-            login: PropTypes.string.isRequired
+            foto: PropTypes.string,
+            nome: PropTypes.string,
+            login: PropTypes.string
         })
     })
 }

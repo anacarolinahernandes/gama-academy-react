@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './trendsArea.css'
 
-class TrendsArea extends Component {
+export default class TrendsArea extends Component {
     render() {
         return (
             <div className="trendsArea">
@@ -14,5 +14,3 @@ class TrendsArea extends Component {
         )
     }
 }
-
-export default TrendsArea
