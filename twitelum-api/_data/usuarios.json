@@ -1,5 +1,13 @@
 [
     {
+        "login": "annewithlasers",
+        "nome": "Ana Carolina",
+        "sobrenome": "Hernandes",
+        "foto": "https://avatars1.githubusercontent.com/u/33909525?s=460&v=4",
+        "email": "anacbhernandes@gmail.com",
+        "senha": "123456"
+    },
+    {
         "login": "omariosouto",
         "nome": "Mario",
         "sobrenome": "Souto",
