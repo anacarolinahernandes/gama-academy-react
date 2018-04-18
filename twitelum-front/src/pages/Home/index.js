@@ -4,9 +4,10 @@ import NavMenu from '../../components/NavMenu'
 import Dashboard from '../../components/Dashboard'
 import Widget from '../../components/Widget'
 import TrendsArea from '../../components/TrendsArea'
-import Tweet from '../../components/Tweet'
+import Tweet from '../../containers/TweetPadrao'
 import Modal from '../../components/Modal'
 import PropTypes from 'prop-types'
+import * as TweetsAPI from '../../apis/TweetsAPI'
 
 export default class Home extends Component {
 
@@ -36,51 +37,25 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
-        fetch(`http://localhost:3001/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`)
-            .then((respostaDoServer) => respostaDoServer.json())
-            .then((tweetsDoServidor) => {
-                this.context.store.dispatch({type: 'CARREGA_TWEETS', tweets: tweetsDoServidor})
-            })
+        this.context.store.dispatch(TweetsAPI.carrega())
     }
 
 
     adicionaTweet(event) {
         event.preventDefault()
-        const novoTweet = this.state.novoTweet
-        const tweetsAntigos = this.state.tweets
-
-        if (novoTweet) {
-            fetch(`http://localhost:3001/tweets?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`,
-                {
-                    method: 'POST',
-                    body: JSON.stringify({ conteudo: novoTweet })
-                })
-
-                .then((respostaDoServer => respostaDoServer.json()))
-                .then((novoTweetRegistradoNoServer) => {
-                    this.setState({
-                        tweets: [novoTweetRegistradoNoServer, ...tweetsAntigos],
-                        novoTweet: ''
-                    })
-
-                })
-        }
+        //const novoTweet = this.state.novoTweet
+        this.context.store.dispatch(TweetsAPI.adiciona(this.state.novoTweet))
+        this.setState({
+            novoTweet: ''
+        })
     }
 
     removeTweet = (idDoTweet) => {
-        // Saber o ID do Tweet
-        fetch(`http://localhost:3001/tweets/${idDoTweet}?X-AUTH-TOKEN=${localStorage.getItem('TOKEN')}`, {
-            method: 'DELETE'
-        })
+        this.context.store.dispatch(TweetsAPI.remove(idDoTweet))
 
-            .then((respostaDoServer) => respostaDoServer.json())
-            .then((respostaPronta) => {
-                const tweetsAtualizados = this.state.tweets.filter((tweetAtual) => tweetAtual._id !== idDoTweet)
-                this.setState({
-                    tweets: tweetsAtualizados,
-                    tweetAtivo: {}
-                })
-            })
+        this.setState({
+            tweetAtivo: {}
+        })
     }
 
     abreModalParaTweet = (idDoTweetQueVaiNoModal, event) => {
@@ -150,7 +125,7 @@ export default class Home extends Component {
                                         (tweetInfo, index) =>
                                             <Tweet
                                                 key={tweetInfo._id}
-                                                removeHandler={(event) => this.removeTweet(tweetInfo._id)}
+                                                // removeHandler={(event) => this.removeTweet(tweetInfo._id)}
                                                 texto={tweetInfo.conteudo}
                                                 handleModal={(event) => this.abreModalParaTweet(tweetInfo._id, event)}
                                                 tweetInfo={tweetInfo} />
