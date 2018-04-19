@@ -31,7 +31,8 @@ export default class Home extends Component {
     componentWillMount() {
         this.context.store.subscribe(() => {
             this.setState({
-                tweets: this.context.store.getState()
+                tweets: this.context.store.getState().tweets.lista,
+                tweetAtivo: this.context.store.getState().tweets.tweetAtivo
             })
         })
     }
@@ -61,19 +62,14 @@ export default class Home extends Component {
     abreModalParaTweet = (idDoTweetQueVaiNoModal, event) => {
         const ignoraModal = event.target.closest('.ignoraModal')
         if (!ignoraModal) {
-            const tweetAtivo = this.state.tweets.find((tweetAtual) => tweetAtual._id === idDoTweetQueVaiNoModal)
-            this.setState({
-                tweetAtivo: tweetAtivo
-            })
+            this.context.store.dispatch({ type: 'ADD_TWEET_ATIVO', idDoTweetQueVaiNoModal })
         }
     }
 
     fechaModal = (event) => {
         const isModal = event.target.classList.contains('modal')
         if (isModal) {
-            this.setState({
-                tweetAtivo: {}
-            })
+            this.context.store.dispatch({ type: 'REMOVE_TWEET_ATIVO' })
         }
     }
 
@@ -136,16 +132,24 @@ export default class Home extends Component {
                     </Dashboard>
                 </div>
 
+
+                <Modal isAberto={this.state.tweetAtivo._id} fechaModal={this.fechaModal}>
+                    <Widget>
+                        <Tweet
+                            removeHandler={() => this.removeTweet(this.state.tweetAtivo._id)}
+                            texto={this.state.tweetAtivo.conteudo || ''}
+                            tweetInfo={this.state.tweetAtivo || { _id: '' }} />
+                    </Widget>
+                </Modal>
+
                 {
-                    <Modal isAberto={this.state.tweetAtivo._id} fechaModal={this.fechaModal}>
-                        <Widget>
-                            <Tweet
-                                removeHandler={() => this.removeTweet(this.state.tweetAtivo._id)}
-                                texto={this.state.tweetAtivo.conteudo || ''}
-                                tweetInfo={this.state.tweetAtivo || { _id: '' }} />
-                        </Widget>
-                    </Modal>
+                    this.context.store.getState().notificacao &&
+                    <div className="notificacaoMsg" 
+                    onAnimationEnd={ () => this.context.store.dispatch({ type: 'REMOVE_NOTIFICACAO'})}>
+                        {this.context.store.getState().notificacao}
+                    </div>
                 }
+
             </Fragment>
         );
     }

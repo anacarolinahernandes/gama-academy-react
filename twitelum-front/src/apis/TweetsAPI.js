@@ -37,6 +37,15 @@ export const remove = (idDoTweet) => {
             .then((respostaDoServer) => respostaDoServer.json())
             .then((respostaPronta) => {
                 dispatch({ type: 'REMOVE_TWEET', idDoTweet: idDoTweet })
+                dispatch({ type: 'REMOVE_TWEET_ATIVO' })
             })
+    }
+}
+
+export const like = (idDoTweet) => {
+    return (dispatch) => {
+        dispatch({ type: 'LIKE', idDoTweet })
+        dispatch({ type: 'ADD_NOTIFICACAO', msg: "Alô, alô! Você deu like!"})
+        // desafio incluir o fetch
     }
 }
